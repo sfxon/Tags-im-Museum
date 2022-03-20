@@ -33,3 +33,7 @@ Vorstellbar wären:
 
 a) Spielwiese
 Zum Testen und planen von Ideen steht glücklicherweise eine Spielwiese in Form einer 2-Dimensionalen Online-Welt zur Verfügung. Diese könnte von uns aus einem GitHub Repository geklont, und dann modifiziert werden. Damit ließen sich bspw. Handlungsstränge, Installationsorte u.ä. im Voraus planen, und mit allen beteiligten kommunizieren. Vielleicht genügt uns das als Projekt auch. Auf jeden Fall ist das ein sehr wichtiger Milestone.
+
+## Titel: Tags im Museum
+
+Der Titel lehnt sich nicht nur an den Film "Tags im Museum an", sondern ist gleichzeitig ein Wortspiel. Die Texte werden verschlagwortet, also mit sogenannten Tags versehen.
