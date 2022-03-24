@@ -1,0 +1,140 @@
+1. Tagebuch
+Datei: 1.txt
+Zeile: 171
+
+Nummer 34.
+Tagebuch des Naturkundlichen Heimatmuseums der Stadt Leipzig.
+Vom 1. September 1932 bis 30. Juni 1933.
+
+Geführt von
+Kurt Braune
+
+-------------------------------------------------
+
+2. Tagebuch
+Datei: 2.txt
+Zeile: 2209
+
+Nummer 35.
+Tagebuch des Naturkundlichen Heimatmuseums der Stadt Leipzig.
+Vom 1. Juli 1933 bis 11. Juli 1934.
+
+Geführt von
+Kurt Braune
+Rudolf Gläsel 
+
+
+-------------------------------------------------
+
+3. Tagebuch
+Datei: 3.txt
+Zeile: 4395
+
+Nummer 36.
+Tagebuch des Naturkundlichen Heimatmuseums der Stadt Leipzig.
+Vom 12. Juli 1934 bis 12. Mai 1935.
+
+Geführt von
+Rudolf Gläsel
+
+
+-------------------------------------------------
+
+4. Tagebuch
+Datei: 4.txt
+Zeile 5728
+
+Nummer 37.
+Tagebuch des Naturkundlichen Heimatmuseums der Stadt Leipzig.
+Vom 13. Mai 1935 bis 14. März 1936.
+
+Geführt von 
+Rudolf Gläsel
+
+-------------------------------------------------
+
+5. Tagebuch
+Datei: 5.txt
+Zeile: 7385
+
+Nummer 38.
+Tagebuch des Naturkundlichen Heimatmuseums der Stadt Leipzig.  
+Vom 15. März 1936 bis 30. Januar 1937.
+
+Geführt von
+Rudolf Gläsel
+
+
+-------------------------------------------------
+
+6. Tagebuch
+Datei: 6.txt
+Zeile: 8634
+
+Nummer 39.
+Tagebuch des Naturkundlichen Heimatmuseums der Stadt Leipzig.
+Vom 31. Januar 1937 bis 8. September 1938.
+
+Geführt von
+Rudolf Gläsel
+
+
+-------------------------------------------------
+
+7. Tagebuch
+Datei: 7.txt
+Zeile: 10825
+
+Nummer 40.
+Tagebuch des Naturkundlichen Heimatmuseums der Stadt Leipzig.
+Vom 9. September 1938 bis 14. Mai 1940.
+
+Geführt von
+Rudolf Gläsel
+
+
+-------------------------------------------------
+
+8. Tagebuch
+Datei: 8.txt
+Zeile: 13358
+
+Nummer 41.
+Tagebuch des Naturkundlichen Heimatmuseums der Reichsmessestadt Leipzig.
+Vom 15. Mai 1940 bis 31. Dezember 1941.   
+
+Geführt von
+Rudolf Gläsel
+
+
+-------------------------------------------------
+
+9. Tagebuch
+Datei: 9.txt
+Zeile: 15941
+
+Nummer 42.
+Tagebuch des Naturkundlichen Heimatmuseums der Reichsmessestadt Leipzig.
+Vom 1. Januar 1942 bis 6. September 1943.
+
+Geführt von
+Rudolf Gläsel
+
+
+-------------------------------------------------
+
+10. Tagebuch
+Datei: 10.txt
+Zeile: 18111
+
+Nummer 43.
+Tagebuch des Naturkundlichen Heimatmuseums der Reichsmessestadt Leipzig. 
+Vom 7. September 1943 bis 31. Juli 1946.
+
+Geführt von
+[Museumsdirektor] Rudolf Gläsel
+[Oberlehrer] Robert Döring
+[Museumsleiter] Erich Gentzsch
+
+
+-------------------------------------------------
