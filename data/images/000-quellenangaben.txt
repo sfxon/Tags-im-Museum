@@ -1,0 +1,33 @@
+Datei: iphone-example-lukas-2-inkl.tabgloud.png
+Entwurf einer App, welche Tagebucheinträge darstellt, inkl. einer Tag-Cloud.
+Lukas Kliemank
+
+Datei: iphone-examples-lukas-1.png
+Entwurf einer App, welche Tagebucheinträge darstellt.
+Lukas Kliemank
+
+Datei: living-diaries.jpg
+Ausschnitt aus einem Graphic-Recording. Die Grafiken wurden während der Ideen-Vorstellung (Projektideen) am Sonntag, 20.03.2022, von einer Künstlerin live gezeichnet. Ich habe hier das für unser Projekt erstellte mal per Screenshot gegengesichert - auch wenn es leicht abgeschnitten ist.
+Zeichnerin: Regina Rullmann, Buntbüro, https://www.buntbuero.de/
+
+Datei: tags-im-museum.jpg
+Cover für unseren Hackdash Beitrag; Aus einer Präsentation heraus erstellt. Hintergrund ist eine Fotografie der Titelseite eines der Tagebücher.
+Steve Krämer
+
+Datei: sk-app.jpg
+Entwurf einer App, welche Tagebucheinträge darstellt.
+Steve Krämer
+
+Datei: sk-app2.jpg
+Einbettung der App aus sk-app.jpg in ein iPhone.
+Lukas Kliemank
+
+Ordner: bilder-aus-den-tagebuechern
+Entnommen aus den Tagebuch-Fotografien des Naturkundemuseums
+
+Datei: tagcloud.png
+Datei: tagcloud2.png
+Erstellte Tag-Clouds für eine Präsentation. Worte sind dem Tagebuch entnommen.
+Steve Krämer
+
+
