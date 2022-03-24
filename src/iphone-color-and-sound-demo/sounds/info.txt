@@ -1,0 +1,16 @@
+info
+
+In diesem Ordner sind keine Dateien hinterlegt, damit kein Copyright verletzt wird.
+Im Original wurden folgende Sounddateien von freesound.org verwendet, und wie folgt benannt:
+
+Datei: 0-duester.wav
+https://freesound.org/people/TheNordicDawn/sounds/519181/
+
+Datei: 1-fun.wav
+https://freesound.org/people/Xcreenplay/sounds/573304/
+
+Datei: 2-wut.wav
+https://freesound.org/people/Setuniman/sounds/135670/
+
+Datei: 3-entspannt.wav
+https://freesound.org/people/Setuniman/sounds/202127/
