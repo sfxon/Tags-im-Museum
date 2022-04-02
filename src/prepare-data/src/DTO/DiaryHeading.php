@@ -47,8 +47,18 @@ class DiaryHeading {
         return $this->From;
     }
 
+    public function getFromAsDatetime() {
+        $from = new \DateTime($this->From);
+        return $from;
+    }
+
     public function getTo() {
         return $this->To;
+    }
+
+    public function getToAsDatetime() {
+        $to = new \DateTime($this->To);
+        return $to;
     }
 
     public function setFromToFromString($input) {
@@ -157,5 +167,9 @@ class DiaryHeading {
         $this->Year = $parts[0];
         $this->Part = $parts[1];
         $this->Part = trim(str_replace("Teil ", "", $this->Part));
+    }
+
+    public function getPart() {
+        return $this->Part;
     }
 }

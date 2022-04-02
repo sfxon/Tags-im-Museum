@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Enum\LineType;
 use App\DTO\DiaryEntry;
 use App\DTO\DiaryHeading;
+use App\DTO\DiaryEntryHeading;
 use App\Services\DateHelper;
 use App\Services\AuthorService;
 use App\Services\DiaryService;
@@ -27,6 +28,7 @@ class AddDiaryEntriesFromFileController extends AbstractController
     private $authorIds = [];
     private $diaryId;
     private $doctrine;
+    private $sortOrder;
     
     #[Route('/addDiaryEntriesFromFile', name: 'app_add_diary_entries_from_file')]
     public function index(ManagerRegistry $doctrine): Response
@@ -36,10 +38,14 @@ class AddDiaryEntriesFromFileController extends AbstractController
         $this->lastLineType = null;
         $this->diaryHeading = new DiaryHeading();
         $this->diaryHeadingComplete = false;
+        $this->entryHeading = null;
         $endEntry = false;
+        $entryHeading = null;
+        $this->sortOrder = 1;
         $lines = [];
+        $isEntryHeading = false;
 
-        $file = new \SplFileObject("../../../data/tagebuecher-plain-text-separated/01.txt");
+        $file = new \SplFileObject("../../../data/tagebuecher-plain-text-separated/02.txt");
 
         while(!$file->eof()) 
         {
@@ -69,21 +75,51 @@ class AddDiaryEntriesFromFileController extends AbstractController
                 $endEntry = true;
             } else if(true === $this->isEntryHeading($line)) {
                 $endEntry = true;
+                $isEntryHeading = true;
             } else {
                 $lines[] = $line;
             }
 
-            if($endEntry && count($lines) > 0) {
-                var_dump($lines);
-                echo '<hr />';
-                $lines = [];
+            // Eintrag speichern, wenn dies das Ende ist.
+            if($endEntry) {
+                // Entferne leere Zeilen am Ende des Zeilen-Arrays.
+                while(count($lines) > 0 && strlen(trim($lines[(count($lines) - 1)])) == 0) {
+                    unset($lines[(count($lines) - 1)]);
+                }
+
+                // Wenn das der erste Eintrag ist
+                if($entryHeading == null && $this->sortOrder == 1 && $isEntryHeading) {
+                    $entryHeading = $this->getEntryHeading($line);
+                } else {
+                    // Wenn es noch Zeilen gibt.
+                    if(count($lines) > 0) {
+                        $newEntryHeading = $this->getEntryHeading($line);
+
+                        if(null !== $entryHeading) {
+                            $this->saveEntry($entryHeading, $lines);
+                            $lines = [];
+                        }
+                        
+                        $entryHeading = $newEntryHeading;
+                    }
+                }
             }
 
             $endEntry = false;
+            $isEntryHeading = false;
+        };
+
+        // Letzten Eintrag einfügen
+        // Entferne leere Zeilen am Ende des Zeilen-Arrays.
+        while(count($lines) > 0 && strlen(trim($lines[(count($lines) - 1)])) == 0) {
+            unset($lines[(count($lines) - 1)]);
+        }
+        
+        if(count($lines) > 0) {
+            $this->saveEntry($entryHeading, $lines);
         }
 
-        //var_dump($this->diaryHeading);
-
+        // Dateizeiger auf null setzen, Context damit schließen.
         $file = null;
 
 
@@ -91,7 +127,7 @@ class AddDiaryEntriesFromFileController extends AbstractController
             'controller_name' => 'AddDiaryEntriesFromFileController',
         ]);*/
 
-        die('***');
+        die('Daten wurden importiert.');
     }
 
     private function isSection($line) {
@@ -158,6 +194,53 @@ class AddDiaryEntriesFromFileController extends AbstractController
         return true;
     }
 
+    private function getEntryHeading($line) {
+        // Explode on Komma
+        $parts = explode(',', $line);
+
+        // zwei Teile?
+        if(!is_array($parts) || count($parts) != 2) {
+            return null;
+        }
+
+        // im ersten Teil: Wochentag parsen
+        if(strlen($parts[0]) > 10) {        // Längster String ist "Donnerstag", mit 10 Buchstaben.
+            return null;
+        }
+
+        $weekday = DateHelper::getWeekdayByName($parts[0]);
+
+        if(false === $weekday) {
+            return null;
+        }
+
+        // im zweiten Teil: den enthalten?
+
+
+        if(strpos($parts[1], " den ") === false) {
+            return null;
+        }
+
+        $dateString = str_replace(" den ", "", $parts[1]);
+
+        // im zweiten Teil: endet auf einen Punkt?
+        if(strpos(strrev($dateString), ".") != 0) {
+            return null;
+        }
+
+        // den . entfernen
+        $dateString = rtrim($dateString, '.');
+        
+        // im zweiten Teil das Datum parsen
+        $dateString = DateHelper::parseNumericTextualDate($dateString);
+
+        $diaryEntryHeading = new DiaryEntryHeading();
+        $diaryEntryHeading->setWeekday($weekday);
+        $diaryEntryHeading->setEntryDateByString($dateString);
+        
+        return $diaryEntryHeading;
+    }
+
     private function parseDiaryHeading($line) {
         if(strlen($line) > 0) {
             if($this->diaryHeading->getNumber() ===  null) {
@@ -189,24 +272,67 @@ class AddDiaryEntriesFromFileController extends AbstractController
                 $this->lastLineType = LineType::YearAndPart;
                 $this->diaryHeadingComplete = true;
 
-                // Add author
-                $authorService = new AuthorService($this->doctrine);
-
-                foreach($this->diaryHeading->getAuthors() as $author) {
-                    $authorId = $authorService->addAuthorIfNotExists(
-                        $author->getTitle(),
-                        $author->getFirstname(),
-                        $author->getLastname()
-                    );
-
-                    var_dump($authorId);
-                    die;
-                }
-
-                // Add diary
+                $this->saveDiaryDataInDb();
 
                 return true;
             }
         }
+    }
+
+    private function saveDiaryDataInDb() {
+        // Add author
+        $authorService = new AuthorService($this->doctrine);
+
+        foreach($this->diaryHeading->getAuthors() as $author) {
+            $authorId = $authorService->addAuthorIfNotExists(
+                $author->getTitle(),
+                $author->getFirstname(),
+                $author->getLastname()
+            );
+
+            $this->authorIds[] = $authorId;
+        }
+
+        if(count($this->authorIds) != 1) {
+            die('Es ist mehr als ein Author vorhanden. Wem sollen wir die Einträge zuordnen?');
+        }
+
+        // Add diary
+        $diaryService = new DiaryService($this->doctrine);
+
+        $this->diaryId = $diaryService->addDiaryIfNotExists(
+            $this->diaryHeading->getNumber(),
+            $this->diaryHeading->getTitle(),
+            $this->diaryHeading->getFromAsDatetime(),
+            $this->diaryHeading->getToAsDatetime(),
+            $this->diaryHeading->getPart()
+        );
+    }
+
+    public function saveEntry($entryHeading, $lines) {
+        $diaryEntryService = new DiaryEntryService($this->doctrine);
+        
+        $diaryEntryId = $diaryEntryService->addDiaryEntry(
+            $this->diaryId, 
+            $this->sortOrder,
+            $entryHeading->getEntryDate(),
+            implode("\n", $lines)
+        );
+
+        // Add lines
+        $diaryEntryLineService = new DiaryEntryLinesService($this->doctrine);
+        $sortOrder = 1;
+        
+        foreach($lines as $line) {
+            $diaryEntryLineService->addDiaryEntryLine(
+                $diaryEntryId, 
+                $sortOrder, 
+                $line
+            );
+
+            $sortOrder++;
+        }
+
+        $this->sortOrder++;
     }
 }

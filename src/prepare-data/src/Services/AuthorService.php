@@ -8,10 +8,9 @@ use Doctrine\Persistence\ManagerRegistry;
 class AuthorService {
     private $managerRegistry;
 
-    public function __construct(ManagerRegistry $mr, )
+    public function __construct(ManagerRegistry $mr)
     {
         $this->managerRegistry = $mr;
-        
     }
 
     public function addAuthor($title, $firstname, $lastname) {

@@ -14,16 +14,17 @@ class DiaryEntryService {
         
     }
 
-    public function addDiary($diary_id, $sort_order, $date_of_entry) {
+    public function addDiaryEntry($diary_id, $sort_order, $date_of_entry, $content_text) {
         $entityManager = $this->managerRegistry->getManager();
 
         $diaryEntry = new diaryEntry();
         $diaryEntry->setDiaryId($diary_id);
         $diaryEntry->setSortOrder($sort_order);
         $diaryEntry->setDateOfEntry($date_of_entry);
+        $diaryEntry->setContentText($content_text);
 
         $entityManager->persist($diaryEntry);
-        $entityManager()->flush();
+        $entityManager->flush();
 
         return $diaryEntry->getId();
     }

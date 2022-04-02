@@ -22,6 +22,10 @@ class DiaryEntry
     #[ORM\Column(type: 'date')]
     private $date_of_entry;
 
+    #[ORM\Column(type: 'text')]
+    private $content_text;
+
+
     public function getId(): ?int
     {
         return $this->id;
@@ -59,6 +63,18 @@ class DiaryEntry
     public function setDateOfEntry(\DateTimeInterface $date_of_entry): self
     {
         $this->date_of_entry = $date_of_entry;
+
+        return $this;
+    }
+
+    public function getContentText(): ?string
+    {
+        return $this->content_text;
+    }
+
+    public function setContentText(string $content_text): self
+    {
+        $this->content_text = $content_text;
 
         return $this;
     }
