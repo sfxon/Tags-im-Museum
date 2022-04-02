@@ -17,7 +17,6 @@ Soll zukünftig noch:
 
 * PHP ab 8.1, Apache, MySQL 5.7 oder Maria DB 10.x
 * Composer zur Installation (basiert auf Symfony), installiert abhängigkeiten mit composer install
-* 
 
 # Installation
 
