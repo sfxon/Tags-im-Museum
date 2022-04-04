@@ -28,7 +28,7 @@ class AuthorService {
     }
 
     public function addAuthorIfNotExists($title, $firstname, $lastname) {
-        $author = $this->loadAuthor($title, $firstname, $lastname);
+        $author = $this->loadAuthorByName($firstname, $lastname);
 
         if(NULL === $author) {
             return $this->addAuthor($title, $firstname, $lastname);
@@ -42,6 +42,17 @@ class AuthorService {
 
         $author = $entityManager->getRepository(Author::class)->findOneBy([
             'title' => $title,
+            'firstname' => $firstname,
+            'lastname' => $lastname
+        ]);
+
+        return $author;
+    }
+
+    public function loadAuthorByName($firstname, $lastname) {
+        $entityManager = $this->managerRegistry->getManager();
+
+        $author = $entityManager->getRepository(Author::class)->findOneBy([
             'firstname' => $firstname,
             'lastname' => $lastname
         ]);

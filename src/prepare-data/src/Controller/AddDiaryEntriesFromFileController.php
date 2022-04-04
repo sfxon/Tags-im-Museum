@@ -8,6 +8,7 @@ use App\DTO\DiaryHeading;
 use App\DTO\DiaryEntryHeading;
 use App\Services\DateHelper;
 use App\Services\AuthorService;
+use App\Services\AuthorToDiaryService;
 use App\Services\DiaryService;
 use App\Services\DiaryEntryService;
 use App\Services\DiaryEntryLinesService;
@@ -15,12 +16,15 @@ use App\Services\DiaryPageNumberCheck;
 use App\Services\LineProcessing;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class AddDiaryEntriesFromFileController extends AbstractController
 {
+    private $request;
     private $currentPage = 0;
+    private $lastReadPageNumber = 0;
     private $lastLineType = null;
     private $diaryHeading = null;
     private $diaryHeadingComplete = false;
@@ -29,23 +33,35 @@ class AddDiaryEntriesFromFileController extends AbstractController
     private $diaryId;
     private $doctrine;
     private $sortOrder;
+    private $shortDates = false;
     
     #[Route('/addDiaryEntriesFromFile', name: 'app_add_diary_entries_from_file')]
-    public function index(ManagerRegistry $doctrine): Response
+    public function index(
+        ManagerRegistry $doctrine,
+        Request $request): Response
     {
         $this->doctrine = $doctrine;
-        $this->currentPage = 0;
+        $this->request = $request;
+
+        // Wir unterscheiden zwischen diesen beiden Zeilennummern, weil Beiträge sich über eine oder mehrere Seiten hinweg erstrecken können.
+        // currentPage wird dabei immer mit lastReadPageNumber aktualisiert, wenn ein Eintrag geschrieben wurd.
+        $this->lastReadPageNumber = 0;      // Zuletzt gelesene Zeilennummer
+        $this->currentPage = 0;             // Aktuelle Zeilennummer, die eingetragen wird.
+        
         $this->lastLineType = null;
         $this->diaryHeading = new DiaryHeading();
         $this->diaryHeadingComplete = false;
         $this->entryHeading = null;
         $endEntry = false;
         $entryHeading = null;
-        $this->sortOrder = 1;
         $lines = [];
         $isEntryHeading = false;
+        $this->shortDates = $this->getShortDates();
 
-        $file = new \SplFileObject("../../../data/tagebuecher-plain-text-separated/02.txt");
+        $filename = $this->getFilename();
+        $this->sortOrder = $this->getSortOrder();
+
+        $file = new \SplFileObject("../../../data/tagebuecher-plain-text-separated/" . basename($filename)); //02b.txt");
 
         while(!$file->eof()) 
         {
@@ -56,7 +72,12 @@ class AddDiaryEntriesFromFileController extends AbstractController
             $pageNumber = DiaryPageNumberCheck::getPageNumberFromString($line);
             
             if(false !== $pageNumber) {
-                $this->currentPage = $pageNumber;
+                if($this->currentPage == 0 || $this->sortOrder == 1) {
+                    $this->currentPage = $pageNumber;
+                }
+
+                $this->lastReadPageNumber = $pageNumber;
+
                 $this->lastLineType = LineType::PageNumber;
                 continue;
             }
@@ -98,6 +119,7 @@ class AddDiaryEntriesFromFileController extends AbstractController
                         if(null !== $entryHeading) {
                             $this->saveEntry($entryHeading, $lines);
                             $lines = [];
+                            $this->currentPage = $this->lastReadPageNumber;
                         }
                         
                         $entryHeading = $newEntryHeading;
@@ -127,7 +149,7 @@ class AddDiaryEntriesFromFileController extends AbstractController
             'controller_name' => 'AddDiaryEntriesFromFileController',
         ]);*/
 
-        die('Daten wurden importiert.');
+        die('Daten wurden importiert. Sort-Order für Tagebucheinträge: ' . $this->sortOrder);
     }
 
     private function isSection($line) {
@@ -152,6 +174,14 @@ class AddDiaryEntriesFromFileController extends AbstractController
 
     // For example: Donnerstag, den 1. 9. 1932.
     private function isEntryHeading($line) {
+        if($this->shortDates) {
+            return $this->isEntryHeadingShortDates($line);
+        }
+
+        return $this->isEntryHeadingLongDates($line);
+    }
+
+    private function isEntryHeadingLongDates($line) {
         // Explode on Komma
         $parts = explode(',', $line);
 
@@ -184,17 +214,38 @@ class AddDiaryEntriesFromFileController extends AbstractController
         if(strpos(strrev($dateString), ".") != 0) {
             return false;
         }
-
-        // den . entfernen
-        $dateString = rtrim($dateString, '.');
-        
-        // im zweiten Teil das Datum parsen
-        //DateHelper::parseNumericTextualDate($dateString);
         
         return true;
     }
 
+    private function isEntryHeadingShortDates($line) {
+        $dateString = $line;
+
+        // im zweiten Teil: endet auf einen Punkt?
+        if(strpos(strrev($dateString), ".") != 0) {
+            return false;
+        }
+
+        $dateString = rtrim($dateString, ".");
+
+        $result = DateHelper::parseNumericTextualDate($dateString);
+
+        if($result === false) {
+            return false;
+        }
+
+        return true;
+    }
+
     private function getEntryHeading($line) {
+        if($this->shortDates) {
+            return $this->getEntryHeadingShortDates($line);
+        }
+
+        return $this->getEntryHeadingLongDates($line);
+    }
+
+    private function getEntryHeadingLongDates($line) {
         // Explode on Komma
         $parts = explode(',', $line);
 
@@ -241,6 +292,38 @@ class AddDiaryEntriesFromFileController extends AbstractController
         return $diaryEntryHeading;
     }
 
+    private function getEntryHeadingShortDates($line) {
+        $dateString = $line;
+
+        // im zweiten Teil: endet auf einen Punkt?
+        if(strpos(strrev($dateString), ".") != 0) {
+            return false;
+        }
+
+        $dateString = rtrim($dateString, ".");
+        
+        // im zweiten Teil das Datum parsen
+        $sqlDate = DateHelper::parseNumericTextualDate($dateString);
+
+        if(false === $sqlDate) {
+            $tmp = $this->isEntryHeadingShortDates($line);
+
+            var_dump($tmp);
+
+            var_dump($dateString);
+            die;
+        }
+
+        // Get Weekday
+        $weekday = DateHelper::getWeekdayFromSqlDate($sqlDate);
+
+        $diaryEntryHeading = new DiaryEntryHeading();
+        $diaryEntryHeading->setWeekday($weekday);
+        $diaryEntryHeading->setEntryDateByString($sqlDate);
+        
+        return $diaryEntryHeading;
+    }
+
     private function parseDiaryHeading($line) {
         if(strlen($line) > 0) {
             if($this->diaryHeading->getNumber() ===  null) {
@@ -273,6 +356,7 @@ class AddDiaryEntriesFromFileController extends AbstractController
                 $this->diaryHeadingComplete = true;
 
                 $this->saveDiaryDataInDb();
+                $this->saveAuthorToDiaryDataInDb();
 
                 return true;
             }
@@ -294,13 +378,17 @@ class AddDiaryEntriesFromFileController extends AbstractController
         }
 
         if(count($this->authorIds) != 1) {
-            die('Es ist mehr als ein Author vorhanden. Wem sollen wir die Einträge zuordnen?');
+            $setAllAuthors = $this->request->query->get('set_all_authors');
+
+            if("true" !== $setAllAuthors) {
+                die('Es ist mehr als ein Author vorhanden. Wem sollen wir die Einträge zuordnen? (Verarbeitung kann mit ?set_all_authors=true forciert werden.');
+            }
         }
 
         // Add diary
         $diaryService = new DiaryService($this->doctrine);
 
-        $this->diaryId = $diaryService->addDiaryIfNotExists(
+        $this->diaryId = $diaryService->upsert(
             $this->diaryHeading->getNumber(),
             $this->diaryHeading->getTitle(),
             $this->diaryHeading->getFromAsDatetime(),
@@ -316,6 +404,7 @@ class AddDiaryEntriesFromFileController extends AbstractController
             $this->diaryId, 
             $this->sortOrder,
             $entryHeading->getEntryDate(),
+            $this->currentPage,
             implode("\n", $lines)
         );
 
@@ -334,5 +423,37 @@ class AddDiaryEntriesFromFileController extends AbstractController
         }
 
         $this->sortOrder++;
+    }
+
+    private function saveAuthorToDiaryDataInDb() {
+        $authorToDiaryService = new AuthorToDiaryService($this->doctrine);
+
+        foreach($this->authorIds as $authorId) {
+            $authorToDiaryService->upsert($authorId, $this->diaryId );
+        }
+    }
+
+    private function getFilename() {
+        // $_GET parameters
+        $filename = basename($this->request->query->get('filename'));
+        return $filename;
+    }
+
+    private function getSortOrder() {
+        // $_GET parameters
+        $sortOrder = (int)$this->request->query->get('sort_order');
+        return $sortOrder;
+    }
+
+    // Prüft, ob der Request-Parameter "short_dates" auf "true" gesetzt ist.
+    // Falls ja, verwendet das Programm zur Feststellung des Datums keinen vorangestellten Wochentag.
+    private function getShortDates() {
+        // $_GET parameters
+        $short_dates = $this->request->query->get('short_dates');
+
+        if("true" === $short_dates) {
+            return true;
+        }
+        return false;
     }
 }

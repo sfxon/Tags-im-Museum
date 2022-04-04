@@ -30,7 +30,7 @@ class DiaryService {
     }
 
     public function addDiaryIfNotExists($number, $title, $from_date, $to_date, $part_number) {
-        $diary = $this->loadDiary($number, $part_number);
+        $diary = $this->loadDiary($number);
 
         if(NULL === $diary) {
             return $this->addDiary($number, $title, $from_date, $to_date, $part_number);
@@ -39,12 +39,21 @@ class DiaryService {
         die('Das Tagebuch mit der Nummer ' . $number . ' und dem Teil ' . $part_number . ' ist bereits eingetragen. Verarbeitung abgebrochen.');
     }
 
-    public function loadDiary($number, $part_number) {
+    public function upsert($number, $title, $from_date, $to_date, $part_number) {
+        $diary = $this->loadDiary($number);
+
+        if(NULL === $diary) {
+            return $this->addDiary($number, $title, $from_date, $to_date, $part_number);
+        }
+
+        return $diary->getId();
+    }
+
+    public function loadDiary($number) {
         $entityManager = $this->managerRegistry->getManager();
 
         $diary = $entityManager->getRepository(Diary::class)->findOneBy([
-            'number' => $number,
-            'part_number' => $part_number,
+            'number' => $number
         ]);
 
         return $diary;

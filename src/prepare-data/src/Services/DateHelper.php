@@ -84,4 +84,17 @@ class DateHelper {
 
         return false;;
     }
+
+    public static function getWeekdayFromSqlDate($dateString) {
+        $date = \DateTime::createFromFormat("Y-m-d", $dateString);
+
+        if(is_bool($date)) {
+            var_dump($dateString);
+            die;
+        }
+
+        $weekday = $date->format('N');
+
+        return $weekday;
+    }
 }

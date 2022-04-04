@@ -25,6 +25,9 @@ class DiaryEntry
     #[ORM\Column(type: 'text')]
     private $content_text;
 
+    #[ORM\Column(type: 'integer')]
+    private $page_number;
+
 
     public function getId(): ?int
     {
@@ -75,6 +78,18 @@ class DiaryEntry
     public function setContentText(string $content_text): self
     {
         $this->content_text = $content_text;
+
+        return $this;
+    }
+
+    public function getPageNumber(): ?int
+    {
+        return $this->page_number;
+    }
+
+    public function setPageNumber(int $page_number): self
+    {
+        $this->page_number = $page_number;
 
         return $this;
     }
