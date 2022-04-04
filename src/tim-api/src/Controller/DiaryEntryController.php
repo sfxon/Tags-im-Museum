@@ -14,7 +14,10 @@ class DiaryEntryController extends AbstractController
     private $doctrine;
     private $request;
     
-    #[Route('/api/v0.1/diary/{diaryId}/entries', name: 'app_diary_entries')]
+    // PHP 8.0 does not understand Attributes Routes!
+	/**
+	* @Route("/api/v0.1/diary/{diaryId}/entries", methods={"GET","HEAD"}) 
+	*/
     public function index(
         int $diaryId,
         ManagerRegistry $doctrine,
