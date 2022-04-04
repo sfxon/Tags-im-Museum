@@ -1,4 +1,4 @@
-# Prepare Data
+# TIM-API (Tags im Museum - Application Programming Interface)
 
 Eine in Symfony geschriebene API, die Daten aus den Tagebüchern als REST-API bereitstellt.
 
